@@ -1,0 +1,21 @@
+---
+- name: Automação e Checagem de Hosts Windows
+  hosts: salas_de_aula
+  gather_facts: yes
+
+  tasks:
+    - name: Testar Conexão WinRM (Ping)
+      ansible.windows.win_ping:
+
+    - name: Obter Informações do Sistema Operacional
+      ansible.windows.win_powershell:
+        script: |
+          [PSCustomObject]@{
+              HostName = $env:COMPUTERNAME
+              OSVersion = (Get-CimInstance Win32_OperatingSystem).Caption
+          }
+      register: os_info
+
+    - name: Exibir Informações do Host
+      ansible.builtin.debug:
+        var: os_info.result

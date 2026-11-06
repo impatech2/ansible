@@ -1,0 +1,32 @@
+name: Executar Automação Ansible (via Docker)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  ansible-execution:
+    name: Rodar Playbook em Container
+    runs-on: self-hosted
+
+    steps:
+      - name: Baixar código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Construir Imagem Docker do Ansible
+        run: |
+          docker build -t ansible-windows-runner:latest .
+
+      - name: Executar Playbook do Ansible
+        env:
+          WINRM_USER: ${{ secrets.WINRM_USER }}
+          WINRM_PASSWORD: ${{ secrets.WINRM_PASSWORD }}
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/ansible \
+            -e WINRM_USER \
+            -e WINRM_PASSWORD \
+            ansible-windows-runner:latest \
+            -i inventory/hosts.ini playbooks/site.yml
