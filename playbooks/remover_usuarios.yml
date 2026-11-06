@@ -1,0 +1,51 @@
+---
+- name: Remover contas 'al.*' dos Usuários e Grupos Locais e perfis
+  hosts: salas_de_aula
+  gather_facts: false
+
+  tasks:
+    - name: Consultar contas no Usuários e Grupos Locais (lusrmgr) com prefixo 'al.'
+      ansible.windows.win_powershell:
+        script: |
+          $users = Get-LocalUser | Where-Object { $_.Name -like 'al.*' } | Select-Object -ExpandProperty Name
+          $Ansible.Result = @($users)
+      register: local_users
+      changed_when: false
+
+    - name: Desconectar (logoff) sessões ativas dos usuários encontrados
+      ansible.windows.win_powershell:
+        script: |
+          $targetUser = "{{ item }}"
+          $sessions = quser 2>$null | Select-Object -Skip 1
+          if ($sessions) {
+              foreach ($line in $sessions) {
+                  $cleanLine = $line -replace '^\s*>', ''
+                  $fields = -split $cleanLine.Trim()
+                  if ($fields[0] -eq $targetUser) {
+                      $sessionId = if ($fields[1] -match '^\d+$') { $fields[1] } else { $fields[2] }
+                      logoff $sessionId
+                  }
+              }
+          }
+      loop: "{{ local_users.result | default([], true) }}"
+      when: local_users.result is defined and (local_users.result | length) > 0
+      changed_when: true
+
+    - name: Excluir a conta de usuário do SAM (lusrmgr)
+      ansible.windows.win_user:
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ local_users.result | default([], true) }}"
+      when: local_users.result is defined and (local_users.result | length) > 0
+
+    - name: Remover o perfil do usuário do disco e das chaves de registro
+      ansible.windows.win_powershell:
+        script: |
+          $targetUser = "{{ item }}"
+          $profile = Get-CimInstance -ClassName Win32_UserProfile | Where-Object { $_.LocalPath -like "*\$targetUser" }
+          if ($profile) {
+              Remove-CimInstance -InputObject $profile
+          }
+      loop: "{{ local_users.result | default([], true) }}"
+      when: local_users.result is defined and (local_users.result | length) > 0
+      changed_when: true
