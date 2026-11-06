@@ -20,5 +20,5 @@
       ansible.builtin.debug:
        var: os_info.result
 
-    - name: Remover Usuários
-      import_playbook: remover_usuarios.yml
+- name: Remover Usuários
+  import_playbook: remover_usuarios.yml
