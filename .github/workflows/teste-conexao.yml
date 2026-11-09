@@ -27,6 +27,7 @@ jobs:
           docker run --rm \
             -u $(id -u):$(id -g) \
             -e HOME=/tmp \
+            -e ANSIBLE_COLLECTIONS_PATH=/usr/share/ansible/collections \
             -v ${{ github.workspace }}:/ansible \
             --entrypoint ansible-lint \
             ansible-windows-runner:latest \
@@ -41,6 +42,7 @@ jobs:
           docker run --rm \
             -u $(id -u):$(id -g) \
             -e HOME=/tmp \
+            -e ANSIBLE_COLLECTIONS_PATH=/usr/share/ansible/collections \
             -v ${{ github.workspace }}:/ansible \
             -e WINRM_USER \
             -e WINRM_PASSWORD \

@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir \
     requests-ntlm
 
 # Adicionada a colecao community.general
-RUN ansible-galaxy collection install ansible.windows community.windows community.general
+RUN ansible-galaxy collection install ansible.windows community.windows community.general -p /usr/share/ansible/collections
 
 WORKDIR /ansible
 
