@@ -1,7 +1,12 @@
 name: Automação - Limpeza de Usuários Locais
 
 on:
-  workflow_dispatch: # Permite disparar manualmente na aba Actions
+  workflow_dispatch:
+    inputs:
+      target_hosts:
+        description: 'Alvo da execução (Ex: all, lab_fisica_01, ou IP específico 10.16.23.213)'
+        required: true
+        default: 'salas_de_aula'
 
 jobs:
   ansible-execution:
@@ -28,10 +33,12 @@ jobs:
         env:
           WINRM_USER: ${{ secrets.WINRM_USER }}
           WINRM_PASSWORD: ${{ secrets.WINRM_PASSWORD }}
+          TARGET_HOSTS: ${{ inputs.target_hosts }}
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/ansible \
             -e WINRM_USER \
             -e WINRM_PASSWORD \
             ansible-windows-runner:latest \
-            -i inventory/hosts.ini playbooks/remover_usuarios.yml
+            -i inventory/hosts.ini playbooks/remover_usuarios.yml \
+            --limit "$TARGET_HOSTS"
