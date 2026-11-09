@@ -29,7 +29,7 @@ jobs:
             -v ${{ github.workspace }}:/ansible \
             --entrypoint ansible-lint \
             ansible-windows-runner:latest \
-            playbooks/diagnostico_windows.yml
+            playbooks/teste_conexao.yml
 
       - name: Executar Playbook do Ansible
         env:
@@ -43,7 +43,7 @@ jobs:
             -e WINRM_USER \
             -e WINRM_PASSWORD \
             ansible-windows-runner:latest \
-            -i inventory/hosts.ini playbooks/diagnostico_windows.yml \
+            -i inventory/hosts.ini playbooks/teste_conexao.yml \
             --limit "$TARGET_HOSTS"
 
       - name: Corrigir Permissões no Final
