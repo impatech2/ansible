@@ -25,6 +25,7 @@ jobs:
       - name: Validar Sintaxe (ansible-lint)
         run: |
           docker run --rm \
+            -u $(id -u):$(id -g) \
             -v ${{ github.workspace }}:/ansible \
             --entrypoint ansible-lint \
             ansible-windows-runner:latest \
@@ -42,5 +43,10 @@ jobs:
             -e WINRM_USER \
             -e WINRM_PASSWORD \
             ansible-windows-runner:latest \
-            -i inventory/hosts.ini playbooks/teste_conexao.yml\
+            -i inventory/hosts.ini playbooks/diagnostico_windows.yml \
             --limit "$TARGET_HOSTS"
+
+      - name: Corrigir Permissões no Final
+        if: always()
+        run: |
+          sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}
