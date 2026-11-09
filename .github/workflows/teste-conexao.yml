@@ -50,7 +50,4 @@ jobs:
             -i inventory/hosts.ini playbooks/teste_conexao.yml \
             --limit "$TARGET_HOSTS"
 
-      - name: Corrigir Permissões no Final
-        if: always()
-        run: |
-          sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}
+     
