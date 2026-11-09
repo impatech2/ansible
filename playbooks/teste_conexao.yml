@@ -1,0 +1,22 @@
+---
+- name: Administracao e Testes em Servidores Windows
+  hosts: salas_de_aula
+  gather_facts: false
+
+  tasks:
+    - name: 1. Testar conectividade WinRM
+      ansible.windows.win_ping:
+
+    - name: 2. Obter nome da maquina e uptime via PowerShell
+      ansible.windows.win_powershell:
+        script: |
+          [PSCustomObject]@{
+              HostName = $env:COMPUTERNAME
+              Uptime   = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+          }
+      register: uptime_info
+      changed_when: false
+
+    - name: 3. Exibir informacoes obtidas
+      ansible.builtin.debug:
+        var: uptime_info.result

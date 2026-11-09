@@ -1,0 +1,46 @@
+name: Automação - Diagnóstico e Testes Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_hosts:
+        description: 'Alvo da execução (Ex: windows_machines, lab_fisica_01, ou 10.16.23.213)'
+        required: true
+        default: 'salas_de_aula'
+        type: string
+
+jobs:
+  ansible-execution:
+    name: Executar Diagnóstico
+    runs-on: self-hosted
+
+    steps:
+      - name: Baixar código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Construir Imagem Docker do Ansible
+        run: |
+          docker build -t ansible-windows-runner:latest .
+
+      - name: Validar Sintaxe (ansible-lint)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/ansible \
+            --entrypoint ansible-lint \
+            ansible-windows-runner:latest \
+            playbooks/diagnostico_windows.yml
+
+      - name: Executar Playbook do Ansible
+        env:
+          WINRM_USER: ${{ secrets.WINRM_USER }}
+          WINRM_PASSWORD: ${{ secrets.WINRM_PASSWORD }}
+          TARGET_HOSTS: ${{ inputs.target_hosts }}
+        run: |
+          docker run --rm \
+            -u $(id -u):$(id -g) \
+            -v ${{ github.workspace }}:/ansible \
+            -e WINRM_USER \
+            -e WINRM_PASSWORD \
+            ansible-windows-runner:latest \
+            -i inventory/hosts.ini playbooks/diagnostico_windows.yml \
+            --limit "$TARGET_HOSTS"
