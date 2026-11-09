@@ -42,5 +42,5 @@ jobs:
             -e WINRM_USER \
             -e WINRM_PASSWORD \
             ansible-windows-runner:latest \
-            -i inventory/hosts.ini playbooks/diagnostico_windows.yml \
+            -i inventory/hosts.ini playbooks/teste_conexao.yml\
             --limit "$TARGET_HOSTS"
