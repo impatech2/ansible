@@ -1,4 +1,4 @@
-name: Automação - Limpeza de Usuários Locais
+ name: Automação - Limpeza de Usuários Locais
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       target_hosts:
         description: 'Alvo da execução (Ex: all, lab_fisica_01, ou IP específico 10.16.23.213)'
         required: true
-        default: 'salas_de_aula'
+        default: 'windows_machines'
 
 jobs:
   ansible-execution:
@@ -36,6 +36,7 @@ jobs:
           TARGET_HOSTS: ${{ inputs.target_hosts }}
         run: |
           docker run --rm \
+            -u $(id -u):$(id -g) \
             -v ${{ github.workspace }}:/ansible \
             -e WINRM_USER \
             -e WINRM_PASSWORD \
