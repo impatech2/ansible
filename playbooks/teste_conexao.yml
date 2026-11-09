@@ -1,6 +1,6 @@
 ---
 - name: Administracao e Testes em Servidores Windows
-  hosts: salas_de_aula
+  hosts: todos
   gather_facts: false
 
   tasks:

@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       target_hosts:
-        description: 'Alvo da execução (Ex: windows_machines, lab_fisica_01, ou 10.16.23.213)'
+        description: 'Alvo da execução (Ex: todos, salas_de_aula, lab_fisica_01, ou 10.16.23.213)'
         required: true
-        default: 'salas_de_aula'
+        default: 'todos'
         type: string
 
 jobs:
